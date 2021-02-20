@@ -1,8 +1,27 @@
 import bpy
-from mathutils import Vector, Matrix
+from mathutils import Vector
+
+bl_info = {
+    "name": "Precise Tools",
+    "description": "For accurate operations",
+    "author": "ALLAPE",
+    # "version": (0, 0, 1),
+    "blender": (2, 80, 0),
+    "category": "Object",
+}
+
+# region tools
 
 
 def get_selected_vertices(context):
+    """
+    获取当前对象被选中的点
+    get all selected vertices of current selected mesh
+    :return tuple
+    """
+    obj = context.active_object
+    if obj.type != 'MESH':
+        return list()
     mode = context.active_object.mode
     # we need to switch from Edit mode to Object mode so the selection gets updated
     bpy.ops.object.mode_set(mode='OBJECT')
@@ -12,8 +31,12 @@ def get_selected_vertices(context):
     return selected_vertices
 
 
+# endregion
+
+# region origin tools
+
 class PutOriginToCenter(bpy.types.Operator):
-    """Set origin to the center of selected vertices"""
+    """Set origin to the center of two selected vertices"""
     bl_idname = "object.to_the_center_of_two_selected_vertices"
     bl_label = "Set origin to the center"
 
@@ -25,7 +48,7 @@ class PutOriginToCenter(bpy.types.Operator):
     def execute(self, context):
         selected_vertices = get_selected_vertices(context)
 
-        if len(get_selected_vertices(context)) < 2:
+        if len(selected_vertices) < 2:
             self.report({'INFO'}, 'At least two vertices selected')
             return {'FINISHED'}
 
@@ -70,6 +93,9 @@ class OriginToolsPanel(bpy.types.Panel):
         row.label(text="Active object is: {}".format(obj.name))
         row = layout.row()
         row.operator(PutOriginToCenter.bl_idname)
+
+
+# endregion
 
 
 def register():
